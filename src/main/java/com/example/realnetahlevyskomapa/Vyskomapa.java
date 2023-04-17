@@ -3,12 +3,15 @@ package com.example.realnetahlevyskomapa;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.Dragboard;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
@@ -19,7 +22,9 @@ import javafx.util.Duration;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -32,8 +37,8 @@ public class Vyskomapa extends Application {
     public static int schodek = 500;
     public static int MAX = 10000;
     public static int MIN = 0;
-    public static int velikostHorizontuY = 500;
-    public static int velikostHorizontuX = velikostMapy;
+    public static int velikostHorizontuY = 226;
+    public static int velikostHorizontuX = velikostMapy + 100;
     public static int opak = 0;
 
     /**
@@ -125,21 +130,95 @@ public class Vyskomapa extends Application {
 
     public void oknoKonvertujMapu(Pane root, Stage stage, Scene scene, Scene scenaPrvniOkno){
 
-        Image tapeta = new Image("C:\\Users\\Felix\\OneDrive\\Obrázky\\odpad\\TapetaAmerikaHoryRocnikovka2Rocnik.PNG");
+        Image tapeta = new Image("D:\\JavaProjekty\\RealneTahleVyskomapa\\src\\main\\java\\com\\example\\realnetahlevyskomapa\\Obrazky\\TapetaOknoKonvertujMapu.PNG");
         ImageView imageView = new ImageView(tapeta);
         imageView.setLayoutX(0);
         imageView.setLayoutY(0);
         imageView.setFitWidth(size);
         imageView.setFitHeight(size);
 
+        /*
         Hyperlink linkVyskomapa = new Hyperlink();
+        Font currentFont = linkVyskomapa.getFont();
+        Font newFont = new Font(currentFont.getName(), currentFont.getSize() + 10);
+        linkVyskomapa.setStyle("-fx-text-fill: green; -fx-underline: true;");
+        linkVyskomapa.setOnMouseEntered(event -> linkVyskomapa.setStyle("-fx-text-fill: green; -fx-underline: true;"));
+        linkVyskomapa.setOnMouseExited(event -> linkVyskomapa.setStyle("-fx-text-fill: green;"));
+        linkVyskomapa.setFont(newFont);
         linkVyskomapa.setText("vyskomapa ze ktere můžete brát snímky");
-        linkVyskomapa.setPrefSize(size/4, size/6);
-        linkVyskomapa.setLayoutX(size/2-linkVyskomapa.getPrefWidth()/2);
-        linkVyskomapa.setLayoutY(50);
+        linkVyskomapa.setPrefSize(size/1.5, size/6);
+        linkVyskomapa.setLayoutX(50);
+        linkVyskomapa.setLayoutY(150);
         linkVyskomapa.setOnAction(e->{
             getHostServices().showDocument("https://en-gb.topographic-map.com/map-4d9jnh/The-World/?center=50.04391%2C14.39484&zoom=10&base=2");
         });
+        */
+        Button b = new Button("Zde berte obrazky");
+        b.setPrefSize(151.18110236,113.38582677);
+        b.setLayoutY(113.38582677);
+        b.setLayoutX(113.38582677);
+        b.setOnMouseClicked(e->{
+            getHostServices().showDocument("https://en-gb.topographic-map.com/map-4d9jnh/The-World/?center=50.04391%2C14.39484&zoom=10&base=2");
+        });
+
+        Label dragNDrop = new Label("Zde dej png složku");
+        dragNDrop.setStyle("-fx-background-color: lightgray;");
+        dragNDrop.setAlignment(Pos.CENTER);
+        dragNDrop.setPrefSize(200, 200);
+        dragNDrop.setLayoutX(velikostMapy - dragNDrop.getPrefWidth());
+        dragNDrop.setLayoutY(velikostMapy - dragNDrop.getPrefHeight());
+
+        dragNDrop.setOnDragOver(event -> {
+            if (event.getDragboard().hasFiles()) {
+                event.acceptTransferModes(TransferMode.COPY);
+            }
+            event.consume();
+        });
+// Handle the dropped files
+
+        // Enable the label to accept dragged files
+        dragNDrop.setOnDragOver(event -> {
+            Dragboard dragboard = event.getDragboard();
+            if (dragboard.hasFiles()) {
+                // Check if any of the dropped files have the ".png" extension
+                boolean hasPng = dragboard.getFiles().stream()
+                        .anyMatch(file -> file.getName().toLowerCase().endsWith(".png"));
+                if (hasPng) {
+                    event.acceptTransferModes(TransferMode.COPY);
+                }
+            }
+            event.consume();
+        });
+
+// Handle the dropped files
+        dragNDrop.setOnDragDropped(event -> {
+            Dragboard dragboard = event.getDragboard();
+            boolean success = false;
+            if (dragboard.hasFiles()) {
+                // Get the list of dropped files
+                List<File> files = dragboard.getFiles();
+                // Process the dropped files as needed
+                for (File file : files) {
+                    // Check if the dropped file has the ".png" extension
+                    if (file.getName().toLowerCase().endsWith(".png")) {
+                        System.out.println("Dropped PNG file:" + file.getAbsolutePath());
+                        // Add your custom logic to handle the dropped PNG file here
+                    } else {
+                        System.out.println("Dropped file is not a PNG:22222 " + file.getAbsolutePath());
+                        // Add your custom logic for handling other file types here
+                    }
+                }
+                success = true;
+            }
+            event.setDropCompleted(success);
+            event.consume();
+        });
+
+        Button konvertujMapu = new Button("Konvertuj Mapu");
+        konvertujMapu.setPrefSize(151.18110236,151.18110236);
+        konvertujMapu.setLayoutX(113.38582677);
+        konvertujMapu.setLayoutY(velikostMapy - 113.38582677 - konvertujMapu.getPrefHeight());
+
 
         Button buttonZpet = new Button("ZPET");
         buttonZpet.setPrefSize(size/5, size/5);
@@ -149,10 +228,14 @@ public class Vyskomapa extends Application {
             stage.setScene(scenaPrvniOkno);
         });
 
-        root.getChildren().addAll(imageView, linkVyskomapa, buttonZpet);
+        root.getChildren().addAll(imageView, buttonZpet, dragNDrop, konvertujMapu, b);
         stage.setScene(scene);
         stage.show();
 
+    }
+
+    public void konverujMapu(){
+        KonverujMapu konverujMapu = new KonverujMapu();
     }
 
     public void oknoNaGenerovaniMapy(Pane root, Stage stage, Scene scene, Scene scenaPrvniOkno){
@@ -177,12 +260,12 @@ public class Vyskomapa extends Application {
         Pane rootHorizont = new Pane();
         Stage stageHorizont = new Stage();
         stageHorizont.setResizable(false);
-        Scene sceneHorizont = new Scene(rootHorizont, velikostHorizontuX, velikostHorizontuY);
+        Scene sceneHorizont = new Scene(rootHorizont, velikostMapy, velikostHorizontuY);
 
 
 
 
-        Button buttonGenerujMapu2 = new Button("Genruj Mapu");
+        Button buttonGenerujMapu2 = new Button("GENERUJ MAPU 2");
         buttonGenerujMapu2.setPrefSize(size/4, size/6);
         buttonGenerujMapu2.setLayoutX(size/14);
         buttonGenerujMapu2.setLayoutY(size/12);
@@ -200,7 +283,7 @@ public class Vyskomapa extends Application {
             stageMapa.show();
         });
 
-
+        /*
         Button buttonGenerujHorizont = new Button("generuj horizont");
         buttonGenerujHorizont.setPrefSize(size/4, size/6);
         buttonGenerujHorizont.setLayoutX(size/14);
@@ -209,7 +292,7 @@ public class Vyskomapa extends Application {
             generujHorizont(rootHorizont);
             stageHorizont.show();
         });
-
+        */
         Button buttonZpet = new Button("ZPET");
         buttonZpet.setPrefSize(size/5, size/5);
         buttonZpet.setLayoutX(size-buttonZpet.getPrefWidth() - size/14);
@@ -219,7 +302,7 @@ public class Vyskomapa extends Application {
         });
 
 
-        root.getChildren().addAll(imageView, buttonGenerujMapu2, buttonGenerujHorizont, buttonZpet, buttonGenerujMapu);
+        root.getChildren().addAll(imageView, buttonGenerujMapu2, buttonZpet, buttonGenerujMapu);
 
         rootMapa2.setPrefSize(velikostMapy, velikostMapy);
         stageMapa2.setScene(sceneMapa2);
@@ -227,7 +310,7 @@ public class Vyskomapa extends Application {
         rootMapa.setPrefSize(velikostMapy, velikostMapy);
         stageMapa.setScene(sceneMapa);
 
-        rootHorizont.setPrefSize(velikostHorizontuX,velikostHorizontuY);
+        rootHorizont.setPrefSize(velikostMapy,velikostHorizontuY);
         stageHorizont.setScene(sceneHorizont);
 
         stage.setScene(scene);
@@ -491,11 +574,10 @@ public class Vyskomapa extends Application {
         return MIN;
     }
 
-
-    int pocitadloVelikostMapy = 14;
+    int pocitadloVelikostMapy = 0;
     public int zmenaVelikostiMapy(boolean jePlus){
         if (jePlus){
-            if (pocitadloVelikostMapy!=15){
+            if (pocitadloVelikostMapy!=1){
                 pocitadloVelikostMapy++;
             }
         }else{
@@ -503,49 +585,8 @@ public class Vyskomapa extends Application {
                 pocitadloVelikostMapy--;
         }
 
+
         if (pocitadloVelikostMapy == 0){
-            velikostMapy = 10;
-            return velikostMapy;
-        }else if (pocitadloVelikostMapy == 1){
-            velikostMapy = 16;
-            return velikostMapy;
-        }else if (pocitadloVelikostMapy == 2){
-            velikostMapy = 20;
-            return velikostMapy;
-        }else if (pocitadloVelikostMapy == 3){
-            velikostMapy = 25;
-            return velikostMapy;
-        }else if (pocitadloVelikostMapy == 4){
-            velikostMapy = 32;
-            return velikostMapy;
-        }else if (pocitadloVelikostMapy == 5){
-            velikostMapy = 40;
-            return velikostMapy;
-        }else if (pocitadloVelikostMapy == 6){
-            velikostMapy = 50;
-            return velikostMapy;
-        }else if (pocitadloVelikostMapy == 7){
-            velikostMapy = 64;
-            return velikostMapy;
-        }else if (pocitadloVelikostMapy == 8){
-            velikostMapy = 80;
-            return velikostMapy;
-        }else if (pocitadloVelikostMapy == 9){
-            velikostMapy = 160;
-            return velikostMapy;
-        }else if (pocitadloVelikostMapy == 10){
-            velikostMapy = 200;
-            return velikostMapy;
-        }else if (pocitadloVelikostMapy == 11){
-            velikostMapy = 320;
-            return velikostMapy;
-        }else if (pocitadloVelikostMapy == 12){
-            velikostMapy = 400;
-            return velikostMapy;
-        }else if (pocitadloVelikostMapy == 13){
-            velikostMapy = 500;
-            return velikostMapy;
-        }else if (pocitadloVelikostMapy == 14){
             velikostMapy = 800;
             return velikostMapy;
         }else{
@@ -1470,10 +1511,6 @@ public class Vyskomapa extends Application {
 
                     prumernaVyska += bod.getVyska().getvalueOfVyska();
                     pocet++;
-
-
-
-
                 }
 
             }
@@ -1487,7 +1524,7 @@ public class Vyskomapa extends Application {
         Rectangle r = new Rectangle();
         r.setX(0);
         r.setY(0);
-        r.setWidth(velikostHorizontuX);
+        r.setWidth(velikostMapy);
         r.setHeight(velikostHorizontuY);
         r.setFill(Color.WHITE);
         root.getChildren().add(r);

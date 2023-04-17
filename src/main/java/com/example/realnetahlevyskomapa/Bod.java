@@ -18,7 +18,7 @@ public class Bod extends Rectangle {
         this.vyska1 = vyska1;
         setWidth(bodSize);
         setHeight(bodSize);
-        setFill(vyska1.getBarva());
+        setFill(vyska1.getBarvaGPT());
         setLayoutX(coordX);
         setLayoutY(coordY);
 

@@ -1,13 +1,17 @@
 package com.example.realnetahlevyskomapa;
 
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.HLineTo;
+import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
 
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
@@ -250,6 +254,8 @@ public class Mapa extends Vyskomapa{
 
     public void generujMapu(Pane root){
 
+
+
         Rectangle r = new Rectangle();
         r.setHeight(velikostMapy);
         r.setWidth(200);
@@ -321,16 +327,6 @@ public class Mapa extends Vyskomapa{
 
         }
         MAPA = mapa;
-/*
-        Rectangle boxSouradnice = new Rectangle(160, 70);
-        boxSouradnice.setLayoutY(50);
-        boxSouradnice.setLayoutX(velikostMapy + 20);
-        boxSouradnice.setOpacity(0.5);
-        boxSouradnice.setFill(Color.RED);
-        boxSouradnice.setStroke(Color.BLACK);
-        boxSouradnice.setStrokeWidth(2);
-*/
-
 
         Label yKoordinace = new Label();
         yKoordinace.setPrefSize(50, 150);
@@ -367,10 +363,29 @@ public class Mapa extends Vyskomapa{
         textVyska.setLayoutY(226);
         textVyska.setLayoutX(velikostMapy + 20);
 
+        Pane rootHorizont = new Pane();
+        Scene sceneHorizont = new Scene(rootHorizont, velikostHorizontuX + 100, velikostHorizontuY );
+        Stage stageHorizont = new Stage();
+        stageHorizont.setResizable(false);
+        stageHorizont.setScene(sceneHorizont);
+
         Button buttonGenerujHorizont = new Button("Pohled ze strany");
         buttonGenerujHorizont.setPrefSize(151, 113);
         buttonGenerujHorizont.setLayoutX(velikostMapy + 24.5);
         buttonGenerujHorizont.setLayoutY(velikostMapy - 18 - 113);
+        buttonGenerujHorizont.setOnMouseClicked(e->{
+            generujHorizont(mapa, rootHorizont, sceneHorizont);
+
+            stageHorizont.show();
+        });
+
+        Button generujMapuZnovu = new Button("generuj jinou mapu");
+        generujMapuZnovu.setPrefSize(151, 113);
+        generujMapuZnovu.setLayoutX(velikostMapy + 24.5);
+        generujMapuZnovu.setLayoutY(velikostMapy - 18 - 113 - 18 - buttonGenerujHorizont.getPrefWidth());
+        generujMapuZnovu.setOnMouseClicked(e->{
+             generujMapu(root);
+        });
 
 
         Rectangle ctverec = new Rectangle();
@@ -387,8 +402,171 @@ public class Mapa extends Vyskomapa{
             labelVyska.setText(String.valueOf(mapa[getKordX(event.getX())][getKordY(event.getY())].getVyska().getvalueOfVyska()));
         });
 
-        root.getChildren().addAll(r, ctverec, yKoordinace, xKoordinace, labelVyska, textXKoordinace, textYKoordinace, textVyska, buttonGenerujHorizont);
+        root.getChildren().addAll(r, ctverec, yKoordinace, xKoordinace, labelVyska, textXKoordinace, textYKoordinace, textVyska, buttonGenerujHorizont, generujMapuZnovu);
 
+    }
+
+
+    /**
+     *
+     * @tohle chatgpt
+     */
+    public void generujHorizont(Bod [][] mapa, Pane root, Scene scene){
+
+        Rectangle nalepka = new Rectangle();
+        nalepka.setHeight(scene.getHeight());
+        nalepka.setWidth(scene.getWidth());
+        nalepka.setLayoutY(0);
+        nalepka.setLayoutX(0);
+        nalepka.setFill(Color.WHITE);
+        root.getChildren().add(nalepka);
+
+
+
+        int[] horizont = new int[mapa.length]; // Create an array to store the max values
+        for (int i = 0; i < mapa.length; i++) {
+            int max = Integer.MIN_VALUE; // Initialize max to the smallest possible value  int max = Integer.MIN_VALUE;
+            for (int j = 0; j < mapa[i].length; j++) {
+                if (mapa[i][j].getVyska().getvalueOfVyska() > max) { // Compare each element in the row to find the max
+                    max = mapa[i][j].getVyska().getvalueOfVyska(); // Update max if a bigger value is found
+                }
+            }
+            horizont[i] = max; // Store the max value in the maxValues array
+            System.out.println(i + "   " + horizont[i]);
+        }
+
+        Rectangle r = new Rectangle();
+        r.setLayoutX(0);
+        r.setLayoutY(0);
+        r.setFill(Color.WHITE);
+        r.setWidth(velikostMapy);
+        r.setHeight(velikostHorizontuY);
+
+
+
+        int m = 0;
+        for (int i = 0;i<horizont.length; i++){
+            if (horizont[i]>m){
+                m=horizont[i];
+            }
+        }
+
+        double dilek = (double)(velikostHorizontuY)/(double)(m);
+        System.out.println("Dilek>  "+dilek);
+        System.out.println("dilek * nejvyssi vyska   "+m*dilek);
+
+        for (int i = 0;i<horizont.length;i++){
+            Vyska vyska = new Vyska(horizont[i]);
+            HBod hBod = new HBod(i,dilek, vyska);
+            root.getChildren().addAll(hBod);
+        }
+
+        Line meritko = new Line();
+        meritko.setStroke(Color.BLACK);
+        meritko.setStrokeWidth(1);
+        meritko.setStartX(velikostHorizontuX - meritko.getStrokeWidth() - 5 - 38);
+        meritko.setStartY(velikostHorizontuY);
+        meritko.setEndX(velikostHorizontuX - meritko.getStrokeWidth() - 5 - 38);
+        meritko.setEndY(0);
+
+        Text text1 = new Text("0");
+        text1.setLayoutY(velikostHorizontuY - 5 + 4);
+        text1.setLayoutX(meritko.getStartX()-20 - 20);
+
+        Text text2 = new Text(String.valueOf(m/4));
+        text2.setLayoutY(velikostHorizontuY - velikostHorizontuY/4 + 4);
+        text2.setLayoutX(meritko.getStartX()-20 - 20);
+
+        Text text3 = new Text(String.valueOf(m/2));
+        text3.setLayoutY(velikostHorizontuY/2 + 4);
+        text3.setLayoutX(meritko.getStartX()-20 - 20);
+
+        Text text4 = new Text(String.valueOf(3*m/4));
+        text4.setLayoutY(velikostHorizontuY/4 + 4);
+        text4.setLayoutX(meritko.getStartX()-20 - 20);
+
+        Text text5 = new Text(String.valueOf(m));
+        text5.setLayoutY(14);
+        text5.setLayoutX(meritko.getStartX()-20 - 20);
+
+        Line odrazka1 = new Line();
+        odrazka1.setStroke(Color.BLACK);
+        odrazka1.setStrokeWidth(1);
+        odrazka1.setStartX(meritko.getStartX()-5);
+        odrazka1.setStartY(velikostHorizontuY - 5);
+        odrazka1.setEndX(meritko.getStartX()+5);
+        odrazka1.setEndY(velikostHorizontuY - 5);
+
+        Line odrazka2 = new Line();
+        odrazka2.setStroke(Color.BLACK);
+        odrazka2.setStrokeWidth(1);
+        odrazka2.setStartX(meritko.getStartX()-5);
+        odrazka2.setStartY(velikostHorizontuY - velikostHorizontuY/4);
+        odrazka2.setEndX(meritko.getStartX()+5);
+        odrazka2.setEndY(velikostHorizontuY - velikostHorizontuY/4);
+
+        Line odrazka3 = new Line();
+        odrazka3.setStroke(Color.BLACK);
+        odrazka3.setStrokeWidth(1);
+        odrazka3.setStartX(meritko.getStartX()-5);
+        odrazka3.setStartY(velikostHorizontuY/2);
+        odrazka3.setEndX(meritko.getStartX()+5);
+        odrazka3.setEndY(velikostHorizontuY/2);
+
+        Line odrazka4 = new Line();
+        odrazka4.setStroke(Color.BLACK);
+        odrazka4.setStrokeWidth(1);
+        odrazka4.setStartX(meritko.getStartX()-5);
+        odrazka4.setStartY(velikostHorizontuY/4);
+        odrazka4.setEndX(meritko.getStartX()+5);
+        odrazka4.setEndY(velikostHorizontuY/4);
+
+        Line odrazka5 = new Line();
+        odrazka5.setStroke(Color.BLACK);
+        odrazka5.setStrokeWidth(1);
+        odrazka5.setStartX(meritko.getStartX()-5);
+        odrazka5.setStartY(5);
+        odrazka5.setEndX(meritko.getStartX()+5);
+        odrazka5.setEndY(5);
+
+
+        Label rada = new Label("Řada: ");
+        rada.setLayoutX(scene.getWidth() -120);
+        rada.setLayoutY(velikostHorizontuY/6);
+        Font currentFont = rada.getFont();
+        Font newFont = new Font(currentFont.getName(), currentFont.getSize() + 6);
+        rada.setFont(newFont);
+
+        Label textRada = new Label();
+        textRada.setLayoutX(scene.getWidth()-70);
+        textRada.setLayoutY(velikostHorizontuY/6);
+        textRada.setFont(newFont);
+
+        Label labelVyska1 = new Label("Výška: ");
+        labelVyska1.setLayoutY(velikostHorizontuY/3);
+        labelVyska1.setLayoutX(scene.getWidth() -120);
+        labelVyska1.setFont(newFont);
+
+        Label labelVyska = new Label();
+        labelVyska.setLayoutY(velikostHorizontuY/3);
+        labelVyska.setLayoutX(scene.getWidth()-70);
+        labelVyska.setFont(newFont);
+
+        Rectangle ctverec = new Rectangle();
+        ctverec.setHeight(scene.getHeight());
+        ctverec.setWidth(velikostMapy);
+        ctverec.setLayoutY(0);
+        ctverec.setLayoutX(0);
+        ctverec.setOpacity(0.0);
+        ctverec.setOnMouseClicked((MouseEvent event)->{
+            textRada.setText(String.valueOf(getKordX(event.getX())));
+            System.out.println("rada> " + getKordX(event.getX()) + "vyska >" + horizont[getKordX(event.getX())]);
+            labelVyska.setText(String.valueOf(horizont[getKordX(event.getX())]));
+        });
+
+
+
+        root.getChildren().addAll( meritko, odrazka1, odrazka2, odrazka3, odrazka4, odrazka5,text1,text2,text3,text4,text5, rada, textRada, labelVyska, labelVyska1, ctverec  );
     }
 
 }

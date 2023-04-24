@@ -6,7 +6,6 @@ import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -35,7 +34,7 @@ public class Vyskomapa extends Application {
     public static int velikostMapy = 800;
     public static int bodSize = 2;
     public static int schodek = 500;
-    public static int MAX = 10000;
+    public static int MAX = 8800;
     public static int MIN = 0;
     public static int velikostHorizontuY = 226;
     public static int velikostHorizontuX = velikostMapy + 100;
@@ -127,46 +126,44 @@ public class Vyskomapa extends Application {
         stage.show();
 
     }
+    public String adresa;
+    public String getAdresa(String adresa1){
+        adresa = adresa1;
+        return adresa;
+    }
 
     public void oknoKonvertujMapu(Pane root, Stage stage, Scene scene, Scene scenaPrvniOkno){
 
-        Image tapeta = new Image("D:\\JavaProjekty\\RealneTahleVyskomapa\\src\\main\\java\\com\\example\\realnetahlevyskomapa\\Obrazky\\TapetaOknoKonvertujMapu.PNG");
+        double odstaveni = 113.38582677;
+        double velikostX = 200;
+        double velikostY = 140;
+
+        Pane rootKonvertujMapu = new Pane();
+        rootKonvertujMapu.setPrefSize(size + 200,size);
+        Scene sceneKonvertujMapu = new Scene(rootKonvertujMapu);
+
+
+        Image tapeta = new Image("D:\\JavaProjekty\\RealneTahleVyskomapa\\TapetaOknoKonvertujMapu.PNG");
         ImageView imageView = new ImageView(tapeta);
         imageView.setLayoutX(0);
         imageView.setLayoutY(0);
         imageView.setFitWidth(size);
         imageView.setFitHeight(size);
 
-        /*
-        Hyperlink linkVyskomapa = new Hyperlink();
-        Font currentFont = linkVyskomapa.getFont();
-        Font newFont = new Font(currentFont.getName(), currentFont.getSize() + 10);
-        linkVyskomapa.setStyle("-fx-text-fill: green; -fx-underline: true;");
-        linkVyskomapa.setOnMouseEntered(event -> linkVyskomapa.setStyle("-fx-text-fill: green; -fx-underline: true;"));
-        linkVyskomapa.setOnMouseExited(event -> linkVyskomapa.setStyle("-fx-text-fill: green;"));
-        linkVyskomapa.setFont(newFont);
-        linkVyskomapa.setText("vyskomapa ze ktere můžete brát snímky");
-        linkVyskomapa.setPrefSize(size/1.5, size/6);
-        linkVyskomapa.setLayoutX(50);
-        linkVyskomapa.setLayoutY(150);
-        linkVyskomapa.setOnAction(e->{
-            getHostServices().showDocument("https://en-gb.topographic-map.com/map-4d9jnh/The-World/?center=50.04391%2C14.39484&zoom=10&base=2");
-        });
-        */
-        Button b = new Button("Zde berte obrazky");
-        b.setPrefSize(151.18110236,113.38582677);
-        b.setLayoutY(113.38582677);
-        b.setLayoutX(113.38582677);
-        b.setOnMouseClicked(e->{
+        Button zdeBerteObrazky = new Button("Zde berte obrazky");
+        zdeBerteObrazky.setPrefSize(velikostX,velikostY);
+        zdeBerteObrazky.setLayoutY(113.38582677);
+        zdeBerteObrazky.setLayoutX(odstaveni);
+        zdeBerteObrazky.setOnMouseClicked(e->{
             getHostServices().showDocument("https://en-gb.topographic-map.com/map-4d9jnh/The-World/?center=50.04391%2C14.39484&zoom=10&base=2");
         });
 
         Label dragNDrop = new Label("Zde dej png složku");
         dragNDrop.setStyle("-fx-background-color: lightgray;");
         dragNDrop.setAlignment(Pos.CENTER);
-        dragNDrop.setPrefSize(200, 200);
-        dragNDrop.setLayoutX(velikostMapy - dragNDrop.getPrefWidth());
-        dragNDrop.setLayoutY(velikostMapy - dragNDrop.getPrefHeight());
+        dragNDrop.setPrefSize(velikostX, velikostY);
+        dragNDrop.setLayoutX(odstaveni);
+        dragNDrop.setLayoutY((zdeBerteObrazky.getLayoutY() + velikostMapy - 113.38582677 - velikostY)/2 );
 
         dragNDrop.setOnDragOver(event -> {
             if (event.getDragboard().hasFiles()) {
@@ -201,7 +198,8 @@ public class Vyskomapa extends Application {
                 for (File file : files) {
                     // Check if the dropped file has the ".png" extension
                     if (file.getName().toLowerCase().endsWith(".png")) {
-                        System.out.println("Dropped PNG file:" + file.getAbsolutePath());
+                        getAdresa(file.getAbsolutePath());
+                        System.out.println("Dropped PNG file:" + getAdresa(adresa));
                         // Add your custom logic to handle the dropped PNG file here
                     } else {
                         System.out.println("Dropped file is not a PNG:22222 " + file.getAbsolutePath());
@@ -215,9 +213,14 @@ public class Vyskomapa extends Application {
         });
 
         Button konvertujMapu = new Button("Konvertuj Mapu");
-        konvertujMapu.setPrefSize(151.18110236,151.18110236);
-        konvertujMapu.setLayoutX(113.38582677);
+        konvertujMapu.setPrefSize(velikostX,velikostY);
+        konvertujMapu.setLayoutX(odstaveni);
         konvertujMapu.setLayoutY(velikostMapy - 113.38582677 - konvertujMapu.getPrefHeight());
+        konvertujMapu.setOnMouseClicked(e->{
+            stage.setScene(sceneKonvertujMapu);
+            KonverujMapu k = new KonverujMapu();
+            k.konvertujMapu(rootKonvertujMapu, sceneKonvertujMapu, adresa, stage, scene);
+        });
 
 
         Button buttonZpet = new Button("ZPET");
@@ -228,7 +231,37 @@ public class Vyskomapa extends Application {
             stage.setScene(scenaPrvniOkno);
         });
 
-        root.getChildren().addAll(imageView, buttonZpet, dragNDrop, konvertujMapu, b);
+        Font font = new Font(20);
+
+        Rectangle recNavod = new Rectangle(453.54330709,453.54330709);
+        recNavod.setFill(Color.WHITE);
+        recNavod.setLayoutY(113);
+        recNavod.setLayoutX((size-recNavod.getWidth())/2);
+
+        Label textTutotial = new Label("1. Klikněte na tlačítko ,,Zde berte obrázky\". \n" +
+                "2. Skratkou WindowsKey + Shift + s.\n"+
+                "3. Vyznačte část mapy, kterou chcete konvertovat\n a uložte obrázek.\n"+
+                "4. Přetáhněte obrázek z úložiště na šedý obdelník\n s nápisem ,,Zde dejte png složku\"\n" +
+                "5. Klikněte na tlačítko ,,Konveruj Mapu\"\n\n\n"+
+                "!!!Zkontrolujte, že jste ořízli jenom mapu.\n Program jinak nemusí fungovat dobře!!!");
+        textTutotial.setFont(font);
+        textTutotial.setLayoutY(recNavod.getLayoutY() + 5);
+        textTutotial.setLayoutX(recNavod.getLayoutX()+5);
+
+        Button tutorial = new Button("Zobrazit návod");
+        tutorial.setPrefSize(size/5,size/5);
+        tutorial.setLayoutX(buttonZpet.getLayoutX());
+        tutorial.setLayoutY(konvertujMapu.getLayoutY());
+        tutorial.setOnMouseEntered(e->{
+            root.getChildren().addAll(recNavod, textTutotial);
+        });
+        tutorial.setOnMouseExited(e->{
+            root.getChildren().removeAll(recNavod, textTutotial);
+        });
+
+
+
+        root.getChildren().addAll(imageView, buttonZpet, dragNDrop, konvertujMapu, zdeBerteObrazky, tutorial);
         stage.setScene(scene);
         stage.show();
 
@@ -254,7 +287,7 @@ public class Vyskomapa extends Application {
 
         Pane rootMapa = new Pane();
         Stage stageMapa = new Stage();
-        stageMapa.setResizable(false);
+        stageMapa.setResizable(true);
         Scene sceneMapa = new Scene(rootMapa, velikostMapy+200, velikostMapy);
 
         Pane rootHorizont = new Pane();
@@ -277,22 +310,21 @@ public class Vyskomapa extends Application {
         Button buttonGenerujMapu = new Button("GENERUJ MAPU");
         buttonGenerujMapu.setPrefSize(size/4, size/6);
         buttonGenerujMapu.setLayoutX(size/14);
-        buttonGenerujMapu.setLayoutY(size/6 + buttonGenerujMapu.getPrefHeight());
+        buttonGenerujMapu.setLayoutY(buttonGenerujMapu2.getLayoutY() + buttonGenerujMapu2.getPrefHeight() + 20);
         buttonGenerujMapu.setOnMouseClicked(e->{
             generujMapu(rootMapa);
             stageMapa.show();
         });
 
-        /*
-        Button buttonGenerujHorizont = new Button("generuj horizont");
-        buttonGenerujHorizont.setPrefSize(size/4, size/6);
-        buttonGenerujHorizont.setLayoutX(size/14);
-        buttonGenerujHorizont.setLayoutY(size/6 + buttonGenerujHorizont.getPrefHeight() + buttonGenerujMapu.getPrefHeight() + 50);
-        buttonGenerujHorizont.setOnMouseClicked(e->{
-            generujHorizont(rootHorizont);
-            stageHorizont.show();
+        Button buttonVytvorMapu = new Button("VYTVOR MAPU");
+        buttonVytvorMapu.setPrefSize(size/4, size/6);
+        buttonVytvorMapu.setLayoutX(size/14);
+        buttonVytvorMapu.setLayoutY(buttonGenerujMapu.getLayoutY() + 20 + buttonGenerujMapu.getPrefHeight());
+        buttonVytvorMapu.setOnMouseClicked(e->{
+            vytvorMapu(rootMapa);
+            stageMapa.show();
         });
-        */
+
         Button buttonZpet = new Button("ZPET");
         buttonZpet.setPrefSize(size/5, size/5);
         buttonZpet.setLayoutX(size-buttonZpet.getPrefWidth() - size/14);
@@ -302,7 +334,7 @@ public class Vyskomapa extends Application {
         });
 
 
-        root.getChildren().addAll(imageView, buttonGenerujMapu2, buttonZpet, buttonGenerujMapu);
+        root.getChildren().addAll(imageView, buttonGenerujMapu2, buttonZpet, buttonGenerujMapu, buttonVytvorMapu);
 
         rootMapa2.setPrefSize(velikostMapy, velikostMapy);
         stageMapa2.setScene(sceneMapa2);
@@ -317,10 +349,21 @@ public class Vyskomapa extends Application {
         stage.show();
     }
 
+    public void vytvorMapu(Pane root){
+        Mapa mapa = new Mapa();
+        mapa.scenaVytvorMapu(root);
+    }
+
+
+
     public void oknoNastaveni(Pane root, Stage stage, Scene scene, Scene scenaPrvniOkno){
         final boolean plus = true;
         final boolean minus = false;
         double plusTlacitkaOsaX = 50+size/2;
+
+        Rectangle nalepka = new Rectangle(size,size);
+        nalepka.setFill(Color.WHITE);
+        root.getChildren().addAll(nalepka);
 
 
         //Urcovani velikosti jednoho bodu
@@ -336,15 +379,6 @@ public class Vyskomapa extends Application {
         hodnotaVelikostBodu.setLayoutY(size/8);
         hodnotaVelikostBodu.setLayoutX(size/2-50);
 
-        Timeline timelineMinusVelikostBodu = new Timeline(new KeyFrame(Duration.seconds(0.02), event -> {
-            hodnotaVelikostBodu.setText(String.valueOf(zmenaVelikostiMapy(minus)));
-        }));
-        timelineMinusVelikostBodu.setCycleCount(Timeline.INDEFINITE);
-
-        Timeline timelinePlusVelikostBodu = new Timeline(new KeyFrame(Duration.seconds(0.02), event -> {
-            hodnotaVelikostBodu.setText(String.valueOf(zmenaVelikostiMapy(plus)));
-        }));
-        timelinePlusVelikostBodu.setCycleCount(Timeline.INDEFINITE);
 
         Button plusVelikostBodu = new Button("+");
         plusVelikostBodu.setLayoutY(size/8);
@@ -376,15 +410,7 @@ public class Vyskomapa extends Application {
         hodnotaVelikostSchodku.setLayoutY(size/8 + labelVelikostSchodku.getHeight() + 50);
         hodnotaVelikostSchodku.setLayoutX(size/2-50);
 
-        Timeline timelineMinusVelikostSchodku = new Timeline(new KeyFrame(Duration.seconds(0.02), event -> {
-            hodnotaVelikostSchodku.setText(String.valueOf(zmenaVelikostiMapy(minus)));
-        }));
-        timelineMinusVelikostSchodku.setCycleCount(Timeline.INDEFINITE);
 
-        Timeline timelinePlusVelikostSchodku = new Timeline(new KeyFrame(Duration.seconds(0.02), event -> {
-            hodnotaVelikostSchodku.setText(String.valueOf(zmenaVelikostiMapy(plus)));
-        }));
-        timelinePlusVelikostSchodku.setCycleCount(Timeline.INDEFINITE);
 
         Button plusVelikostSchodku = new Button("+");
         plusVelikostSchodku.setLayoutY(size/8 + labelVelikostSchodku.getHeight() + 50);
@@ -414,15 +440,6 @@ public class Vyskomapa extends Application {
         hodnotaMaxVyska.setLayoutY(labelVelikostSchodku.getLayoutY() + labelMaxVyska.getHeight() + 50);
         hodnotaMaxVyska.setLayoutX(size/2-50);
 
-        Timeline timelineMinusMaxVyska = new Timeline(new KeyFrame(Duration.seconds(0.02), event -> {
-            hodnotaMaxVyska.setText(String.valueOf(zmenaVelikostiMapy(minus)));
-        }));
-        timelineMinusMaxVyska.setCycleCount(Timeline.INDEFINITE);
-
-        Timeline timelinePlusMaxVyska = new Timeline(new KeyFrame(Duration.seconds(0.02), event -> {
-            hodnotaMaxVyska.setText(String.valueOf(zmenaVelikostiMapy(plus)));
-        }));
-        timelinePlusMaxVyska.setCycleCount(Timeline.INDEFINITE);
 
         Button plusMaxVyska = new Button("+");
         plusMaxVyska.setLayoutY(labelVelikostSchodku.getLayoutY() + labelMaxVyska.getHeight() + 50);
@@ -448,15 +465,6 @@ public class Vyskomapa extends Application {
         hodnotaMinVyska.setLayoutY(labelMaxVyska.getLayoutY() + labelMinVyska.getHeight() + 50);
         hodnotaMinVyska.setLayoutX(size/2-50);
 
-        Timeline timelineMinusMinVyska = new Timeline(new KeyFrame(Duration.seconds(0.02), event -> {
-            hodnotaMinVyska.setText(String.valueOf(zmenaVelikostiMapy(minus)));
-        }));
-        timelineMinusMinVyska.setCycleCount(Timeline.INDEFINITE);
-
-        Timeline timelinePlusMinVyska = new Timeline(new KeyFrame(Duration.seconds(0.02), event -> {
-            hodnotaMinVyska.setText(String.valueOf(zmenaVelikostiMapy(plus)));
-        }));
-        timelinePlusMinVyska.setCycleCount(Timeline.INDEFINITE);
 
         Button plusMinVyska = new Button("+");
         plusMinVyska.setLayoutY(labelMaxVyska.getLayoutY() + labelMinVyska.getHeight() + 50);
@@ -473,7 +481,7 @@ public class Vyskomapa extends Application {
 
 
         //Urcovani velikosti mapy
-        Label labelVelikostMapy = new Label("Velikost mapy (bod): ");
+        Label labelVelikostMapy = new Label("Velikost mapy (pixel): ");
         labelVelikostMapy.setLayoutX(size/8);
         labelVelikostMapy.setLayoutY(labelMinVyska.getLayoutY() + labelVelikostMapy.getHeight() + 50);
         labelVelikostMapy.setFont(newFont);
@@ -482,38 +490,9 @@ public class Vyskomapa extends Application {
         hodnotaVelikostiMapy.setFont(newFont);
         hodnotaVelikostiMapy.setLayoutY(labelMinVyska.getLayoutY() + labelVelikostMapy.getHeight() + 50);
         hodnotaVelikostiMapy.setLayoutX(size/2-50);
-/*
-        Timeline timelineMinusVelikostMapy = new Timeline(new KeyFrame(Duration.seconds(0.02), event -> {
-            hodnotaVelikostiMapy.setText(String.valueOf(zmenaVelikostiMapy(minus)));
-        }));
-        timelineMinusVelikostMapy.setCycleCount(Timeline.INDEFINITE);
 
-        Timeline timelinePlusVelikostMapy = new Timeline(new KeyFrame(Duration.seconds(0.02), event -> {
-            hodnotaVelikostiMapy.setText(String.valueOf(zmenaVelikostiMapy(plus)));
-        }));
 
-        timelinePlusVelikostMapy.setCycleCount(Timeline.INDEFINITE);
 
- */
-
-        Button plusVelikostMapy = new Button("+");
-        plusVelikostMapy.setLayoutY(labelMinVyska.getLayoutY() + labelVelikostMapy.getHeight() + 50);
-        plusVelikostMapy.setLayoutX(plusTlacitkaOsaX);
-        plusVelikostMapy.setPrefSize(30,30);
-        plusVelikostMapy.setOnMouseClicked(e->hodnotaVelikostiMapy.setText(String.valueOf(zmenaVelikostiMapy(plus))));
-        /*
-        plusVelikostMapy.setOnMousePressed(e-> timelinePlusVelikostMapy.play());
-        plusVelikostMapy.setOnMouseReleased(event -> timelinePlusVelikostMapy.stop());
-        */
-        Button minusVelikostMapy = new Button("-");
-        minusVelikostMapy.setLayoutY(labelMinVyska.getLayoutY() + labelVelikostMapy.getHeight() + 50);
-        minusVelikostMapy.setLayoutX(minusTlacitkaOsaX);
-        minusVelikostMapy.setPrefSize(30,30);
-        minusVelikostMapy.setOnMouseClicked(e->hodnotaVelikostiMapy.setText(String.valueOf(zmenaVelikostiMapy(minus))));
-        /*
-        minusVelikostMapy.setOnMousePressed(e-> timelineMinusVelikostMapy.play());
-        minusVelikostMapy.setOnMouseReleased(event -> timelineMinusVelikostMapy.stop());
-        */
 
 
 
@@ -529,8 +508,8 @@ public class Vyskomapa extends Application {
         });
 
         root.getChildren().addAll(buttonZpet, labelVelikostBodu, labelVelikostSchodku,
-                labelMaxVyska, labelMinVyska, labelVelikostMapy, plusVelikostBodu, minusVelikostBodu, plusMaxVyska, plusMinVyska, plusVelikostMapy, plusVelikostSchodku,
-                minusVelikostSchodku, minusMaxVyska, minusMinVyska, minusVelikostMapy
+                labelMaxVyska, labelMinVyska, labelVelikostMapy, plusVelikostBodu, minusVelikostBodu, plusMaxVyska, plusMinVyska, plusVelikostSchodku,
+                minusVelikostSchodku, minusMaxVyska, minusMinVyska
                 ,hodnotaVelikostBodu, hodnotaVelikostSchodku, hodnotaMaxVyska, hodnotaMinVyska, hodnotaVelikostiMapy);
 
         stage.setScene(scene);
@@ -552,7 +531,7 @@ public class Vyskomapa extends Application {
 
     public int zmenaMAX(boolean jePlus){
         if (jePlus){
-            if (MAX + 50<= 10000){
+            if (MAX + 50<= MAX){
                 MAX+=100;
             }
         }else{
@@ -652,668 +631,6 @@ public class Vyskomapa extends Application {
     public void generujMapu2(Pane root)  {
         Mapa mapa = new Mapa();
         mapa.generujMapu2(root);
-    }
-/*
-    public void generujMapu(Pane root){
-
-        int o2DoLeva;
-        int nahoreVpravo;
-        int nahore;
-        int vlevo;
-        int nahoreVlevo;
-        int vpravo;
-        int dole;
-        int doleVpravo;
-        int doleVlevo;
-
-        int vyskaI;
-        int prumer;
-        int max;
-        int min;
-        int count = 0;
-
-        Bod[][] mapa = new Bod[velikostMapy /bodSize][velikostMapy /bodSize];
-        Vyska zakladniVyska = new Vyska(schodek);
-
-        for (int k = 0; k<opak; k++){
-
-            if (k==0){
-                for (int i = 0; i<mapa.length; i++){
-
-                    for (int j =0; j<mapa.length; j++){
-
-                        if (i==0 && j==0){
-
-                            Bod zakladniBod = new Bod(i*bodSize, j*bodSize, zakladniVyska);
-                            mapa[i][j] = zakladniBod;
-
-                        }else if (i==0){
-
-                            vlevo = mapa[i][j-1].getVyska().getvalueOfVyska();  //nalevo
-
-                            if (j!= 1){
-
-                                o2DoLeva = mapa[i][j-2].getVyska().getvalueOfVyska();  // o 2 doleva
-                                prumer = (vlevo + o2DoLeva )/2;
-                                max = prumer + schodek;
-                                min = prumer - schodek;
-
-
-                                if (min<MIN){
-                                    min = MIN;
-                                    count++;
-                                }else if(max>MAX){
-                                    max = MAX;
-                                    count++;
-                                }
-
-
-                                vyskaI = vytvorVysku(max,min);
-
-                            }else{
-                                max = vlevo+schodek;
-                                min = vlevo-schodek;
-
-                                if (min<MIN){
-                                    min = MIN;
-                                    count++;
-                                }else if(max>MAX){
-                                    max = MAX;
-                                    count++;
-                                }
-
-                                vyskaI = vytvorVysku(max,min);
-                            }
-
-
-                            Vyska vyska = new Vyska(vyskaI);
-
-                            Bod bod = new Bod(i*bodSize, j*bodSize, vyska);
-
-                            mapa[i][j] = bod;
-                            //root.getChildren().addAll(bod);
-                            //System.out.println("body prvniho radku: " + bod.getVyska().getvalueOfVyska() + " min: " + min + " max: "+ max + " generovana vyska: " + vyskaI);
-
-                        }else if (j==0){
-
-                            nahore = mapa[i-1][j].getVyska().getvalueOfVyska();  //nahore
-                            if (j!= mapa.length-1 && j!= mapa.length){
-                                nahoreVpravo = mapa[i-1][j+1].getVyska().getvalueOfVyska();//diagonalne nahore napravo
-                                prumer = (nahoreVpravo + nahore)/2;
-                                max = prumer + schodek;
-                                min = prumer - schodek;
-
-                                if (min<MIN){
-                                    min = MIN;
-                                    count++;
-                                }else if(max>MAX){
-                                    max = MAX;
-                                    count++;
-                                }
-
-                                vyskaI = vytvorVysku(max,min);
-                            }else{
-                                prumer = nahore;
-                                max = prumer + schodek;
-                                min = prumer - schodek;
-
-                                if (min<MIN){
-                                    min = MIN;
-                                    count++;
-                                }else if(max>MAX){
-                                    max = MAX;
-                                    count++;
-                                }
-
-                                vyskaI = vytvorVysku(max,min);
-                            }
-
-                            Vyska vyska = new Vyska(vyskaI);
-
-                            Bod bod = new Bod(i*bodSize,j*bodSize, vyska);
-                            mapa[i][j] = bod;
-                            //root.getChildren().addAll(bod);
-                            //System.out.println("-------------------------------------------------------------"+i);
-                            //System.out.println("body prvniho sloupce: " + bod.getVyska().getvalueOfVyska() + " min: " + min + " max: "+ max + " generovana vyska: " + vyskaI);
-
-                        }else {
-
-                            nahoreVlevo = mapa[i-1][j-1].getVyska().getvalueOfVyska();//diagonalne nahore vlevo
-                            nahore = mapa[i-1][j].getVyska().getvalueOfVyska();  //nahore
-                            vlevo = mapa[i][j-1].getVyska().getvalueOfVyska();  //nalevo
-
-                            if (j!= mapa.length&& j!= mapa.length-1){
-
-                                nahoreVpravo = mapa[i-1][j+1].getVyska().getvalueOfVyska();//diagonalne nahore napravo
-                                prumer = (nahore + vlevo + nahoreVlevo + nahoreVpravo)/4;
-                                max = prumer + schodek;
-                                min = prumer - schodek;
-
-                                if (min<MIN){
-                                    min = MIN;
-                                    count++;
-                                }else if(max>MAX){
-                                    max = MAX;
-                                    count++;
-                                }
-                                vyskaI = vytvorVysku(max,min);
-
-                            }else{
-
-                                prumer = (nahore + nahoreVlevo + vlevo)/3;
-                                max = prumer + schodek;
-                                min = prumer - schodek;
-
-                                if (min<MIN){
-                                    min = MIN;
-                                    count++;
-                                }else if(max>MAX){
-                                    max = MAX;
-                                    count++;
-                                }
-
-                                vyskaI = vytvorVysku(max,min);
-                            }
-
-                            Vyska vyska = new Vyska(vyskaI);
-                            Bod bod = new Bod(i*bodSize, j*bodSize, vyska);
-
-                            mapa[i][j]=bod;
-                            //root.getChildren().addAll(bod);
-                            //System.out.println("ostatvni body: " + bod.getVyska().getvalueOfVyska() + " min: " + min + " max: "+ max + " generovana vyska: " + vyskaI);
-                        }
-                    }
-                }
-            }else{
-
-                for (int i = 0; i<mapa.length; i++){
-
-                    for (int j =0; j<mapa.length; j++){
-
-                        if (i==0 && j==0){
-
-                            vpravo = mapa[i][j+1].getVyska().getvalueOfVyska();
-                            dole = mapa[i+1][j].getVyska().getvalueOfVyska();
-                            doleVpravo = mapa[i+1][j+1].getVyska().getvalueOfVyska();
-
-                            prumer = (dole + vpravo + doleVpravo)/3;
-                            max = prumer + schodek;
-                            min = prumer - schodek;
-
-                            if (min<MIN){
-                                min = MIN;
-                                count++;
-                            }else if(max>MAX){
-                                max = MAX;
-                                count++;
-                            }
-
-                            vyskaI = vytvorVysku(max,min);
-                            Vyska vyska = new Vyska(vyskaI);
-                            Bod bod = new Bod(i*bodSize, j*bodSize,vyska);
-                            mapa[i][j]=bod;
-                            root.getChildren().add(bod);
-
-                        }else if (i==0){
-
-
-                            dole = mapa[i+1][j].getVyska().getvalueOfVyska();
-                            doleVlevo = mapa[i+1][j-1].getVyska().getvalueOfVyska();
-                            vlevo = mapa[i][j-1].getVyska().getvalueOfVyska();
-                            prumer = (dole + doleVlevo + vlevo)/3;
-
-                            if (j!= mapa.length-1 && j!= mapa.length){
-
-                                //vpravo = mapa[i][j+1].getVyska().getvalueOfVyska();
-                                doleVpravo = mapa[i+1][j+1].getVyska().getvalueOfVyska();
-                                prumer = (dole + doleVlevo + vlevo  + doleVpravo)/4;
-
-                            }
-
-                            max = prumer + schodek;
-                            min = prumer - schodek;
-
-                            if (min<MIN){
-                                min = MIN;
-                                count++;
-                            }else if(max>MAX){
-                                max = MAX;
-                                count++;
-                            }
-
-                            vyskaI = vytvorVysku(max,min);
-                            Vyska vyska = new Vyska(vyskaI);
-                            Bod bod = new Bod(i*bodSize,j*bodSize,vyska);
-                            mapa[i][j]=bod;
-                            root.getChildren().add(bod);
-
-                            System.out.println("body prvniho radku: " + bod.getVyska().getvalueOfVyska() + " min: " + min + " max: "+ max + " generovana vyska: " + vyskaI);
-
-                        }else if (j==0){
-
-                            nahore = mapa[i-1][j].getVyska().getvalueOfVyska();
-                            nahoreVpravo = mapa[i-1][j+1].getVyska().getvalueOfVyska();
-                            vpravo = mapa[i][j+1].getVyska().getvalueOfVyska();
-
-
-                            prumer = (nahore + nahoreVpravo + vpravo)/3;
-                            max = prumer + schodek;
-                            min = prumer - schodek;
-
-                            if (i!=mapa.length && i!= mapa.length-1){
-                                dole = mapa[i+1][j].getVyska().getvalueOfVyska();
-                                doleVpravo = mapa[i+1][j+1].getVyska().getvalueOfVyska();
-                                prumer = (nahore + nahoreVpravo + vpravo + dole + doleVpravo)/5;
-                                max = prumer + schodek;
-                                min = prumer - schodek;
-                            }
-
-                            if (min<MIN){
-                                min = MIN;
-                                count++;
-                            }else if(max>MAX){
-                                max = MAX;
-                                count++;
-                            }
-
-                            vyskaI = vytvorVysku(max,min);
-
-                            Vyska vyska = new Vyska(vyskaI);
-
-                            Bod bod = new Bod(i*bodSize,j*bodSize, vyska);
-                            mapa[i][j] = bod;
-                            root.getChildren().addAll(bod);
-                            System.out.println("-------------------------------------------------------------"+i);
-                            System.out.println("body prvniho sloupce: " + bod.getVyska().getvalueOfVyska() + " min: " + min + " max: "+ max + " generovana vyska: " + vyskaI);
-
-                        }else if (i!= mapa.length&& i!=mapa.length-1)  {
-
-                            nahoreVlevo = mapa[i-1][j-1].getVyska().getvalueOfVyska();
-                            nahore = mapa[i-1][j].getVyska().getvalueOfVyska();
-                            vlevo = mapa[i][j-1].getVyska().getvalueOfVyska();
-                            dole = mapa[i+1][j].getVyska().getvalueOfVyska();
-                            doleVlevo = mapa[i+1][j-1].getVyska().getvalueOfVyska();
-
-
-                            prumer = (nahore + nahoreVlevo + dole + doleVlevo + vlevo)/5;
-                            max = prumer + schodek;
-                            min = prumer - schodek;
-
-                            if (min<MIN){
-                                min = MIN;
-                                count++;
-                            }else if(max>MAX){
-                                max = MAX;
-                                count++;
-                            }
-
-                            if (j!= mapa.length-1 &&j!= mapa.length){
-
-                                doleVpravo = mapa[i+1][j+1].getVyska().getvalueOfVyska();
-                                vpravo = mapa[i][j+1].getVyska().getvalueOfVyska();
-                                nahoreVpravo = mapa[i-1][j+1].getVyska().getvalueOfVyska();
-
-                                prumer = (nahore + nahoreVlevo + dole + doleVlevo + vlevo + doleVpravo + nahoreVpravo + vpravo)/8;
-                                max = prumer + schodek;
-                                min = prumer - schodek;
-
-                                if (min<MIN){
-                                    min = 0;
-                                    count++;
-                                }else if(max>MAX){
-                                    max = 1000;
-                                    count++;
-                                }
-
-                            }
-
-                            vyskaI = vytvorVysku(max,min);
-                            Vyska vyska = new Vyska(vyskaI);
-                            Bod bod = new Bod(i*bodSize, j*bodSize, vyska);
-
-                            mapa[i][j]=bod;
-                            root.getChildren().addAll(bod);
-                            System.out.println("ostatvni body: " + bod.getVyska().getvalueOfVyska() + " min: " + min + " max: "+ max + " generovana vyska: " + vyskaI);
-                        }
-                    }
-                }
-            }
-
-        }
-        System.out.println("konec " + "count = " + count);
-
-
-    }
-*/
-    public void generujMapuSKontrolou(Pane root){
-
-        int o2DoLeva;
-        int nahoreVpravo;
-        int nahore;
-        int vlevo;
-        int nahoreVlevo;
-        int vpravo;
-        int dole;
-        int doleVpravo;
-        int doleVlevo;
-
-        int vyskaI;
-        int prumer;
-        int max;
-        int min;
-        int count = 0;
-
-
-        Bod[][] mapa = new Bod[velikostMapy /bodSize][velikostMapy /bodSize];
-        Vyska zakladniVyska = new Vyska(schodek);
-
-        System.out.println("zacatek" + mapa.length);
-
-        for (int k = 0; k<opak; k++){
-
-            if (k==0){
-                for (int i = 0; i<mapa.length; i++){
-
-                    for (int j =0; j<mapa.length; j++){
-
-                        if (i==0 && j==0){
-
-                            Bod zakladniBod = new Bod(i*bodSize, j*bodSize, zakladniVyska);
-                            mapa[i][j] = zakladniBod;
-
-                        }else if (i==0){
-
-                            vlevo = mapa[i][j-1].getVyska().getvalueOfVyska();  //nalevo
-
-                            if (j!= 1){
-
-                                o2DoLeva = mapa[i][j-2].getVyska().getvalueOfVyska();  // o 2 doleva
-                                prumer = (vlevo + o2DoLeva )/2;
-                                max = prumer + schodek;
-                                min = prumer - schodek;
-
-
-                                if (min<MIN){
-                                    min = MIN;
-                                    count++;
-                                }else if(max>MAX){
-                                    max = MAX;
-                                    count++;
-                                }
-
-
-                                vyskaI = vytvorVysku(max,min);
-
-                            }else{
-                                max = vlevo+schodek;
-                                min = vlevo-schodek;
-
-                                if (min<MIN){
-                                    min = MIN;
-                                    count++;
-                                }else if(max>MAX){
-                                    max = MAX;
-                                    count++;
-                                }
-
-                                vyskaI = vytvorVysku(max,min);
-                            }
-
-
-                            Vyska vyska = new Vyska(vyskaI);
-
-                            Bod bod = new Bod(i*bodSize, j*bodSize, vyska);
-
-                            mapa[i][j] = bod;
-                            //root.getChildren().addAll(bod);
-                            //System.out.println("body prvniho radku: " + bod.getVyska().getvalueOfVyska() + " min: " + min + " max: "+ max + " generovana vyska: " + vyskaI);
-
-                        }else if (j==0){
-
-                            nahore = mapa[i-1][j].getVyska().getvalueOfVyska();  //nahore
-                            if (j!= mapa.length-1 && j!= mapa.length){
-                                nahoreVpravo = mapa[i-1][j+1].getVyska().getvalueOfVyska();//diagonalne nahore napravo
-                                prumer = (nahoreVpravo + nahore)/2;
-                                max = prumer + schodek;
-                                min = prumer - schodek;
-
-                                if (min<MIN){
-                                    min = MIN;
-                                    count++;
-                                }else if(max>MAX){
-                                    max = MAX;
-                                    count++;
-                                }
-
-                                vyskaI = vytvorVysku(max,min);
-                            }else{
-                                prumer = nahore;
-                                max = prumer + schodek;
-                                min = prumer - schodek;
-
-                                if (min<MIN){
-                                    min = MIN;
-                                    count++;
-                                }else if(max>MAX){
-                                    max = MAX;
-                                    count++;
-                                }
-
-                                vyskaI = vytvorVysku(max,min);
-                            }
-
-                            Vyska vyska = new Vyska(vyskaI);
-
-                            Bod bod = new Bod(i*bodSize,j*bodSize, vyska);
-                            mapa[i][j] = bod;
-                            //root.getChildren().addAll(bod);
-                            //System.out.println("-------------------------------------------------------------"+i);
-                            //System.out.println("body prvniho sloupce: " + bod.getVyska().getvalueOfVyska() + " min: " + min + " max: "+ max + " generovana vyska: " + vyskaI);
-
-                        }else {
-
-                            nahoreVlevo = mapa[i-1][j-1].getVyska().getvalueOfVyska();//diagonalne nahore vlevo
-                            nahore = mapa[i-1][j].getVyska().getvalueOfVyska();  //nahore
-                            vlevo = mapa[i][j-1].getVyska().getvalueOfVyska();  //nalevo
-
-                            if (j!= mapa.length&& j!= mapa.length-1){
-
-                                nahoreVpravo = mapa[i-1][j+1].getVyska().getvalueOfVyska();//diagonalne nahore napravo
-                                prumer = (nahore + vlevo + nahoreVlevo + nahoreVpravo)/4;
-                                max = prumer + schodek;
-                                min = prumer - schodek;
-
-                                if (min<MIN){
-                                    min = MIN;
-                                    count++;
-                                }else if(max>MAX){
-                                    max = MAX;
-                                    count++;
-                                }
-                                vyskaI = vytvorVysku(max,min);
-
-                            }else{
-
-                                prumer = (nahore + nahoreVlevo + vlevo)/3;
-                                max = prumer + schodek;
-                                min = prumer - schodek;
-
-                                if (min<MIN){
-                                    min = MIN;
-                                    count++;
-                                }else if(max>MAX){
-                                    max = MAX;
-                                    count++;
-                                }
-
-                                vyskaI = vytvorVysku(max,min);
-                            }
-
-                            Vyska vyska = new Vyska(vyskaI);
-                            Bod bod = new Bod(i*bodSize, j*bodSize, vyska);
-
-                            mapa[i][j]=bod;
-                            //root.getChildren().addAll(bod);
-                            //System.out.println("ostatvni body: " + bod.getVyska().getvalueOfVyska() + " min: " + min + " max: "+ max + " generovana vyska: " + vyskaI);
-                        }
-                    }
-                }
-            }else{
-
-                for (int i = 0; i<mapa.length; i++){
-
-                    for (int j =0; j<mapa.length; j++){
-
-                        if (i==0 && j==0){
-
-                            vpravo = mapa[i][j+1].getVyska().getvalueOfVyska();
-                            dole = mapa[i+1][j].getVyska().getvalueOfVyska();
-                            doleVpravo = mapa[i+1][j+1].getVyska().getvalueOfVyska();
-
-                            prumer = (dole + vpravo + doleVpravo)/3;
-                            max = prumer + schodek;
-                            min = prumer - schodek;
-
-                            if (min<MIN){
-                                min = MIN;
-                                count++;
-                            }else if(max>MAX){
-                                max = MAX;
-                                count++;
-                            }
-
-                            vyskaI = vytvorVysku(max,min);
-                            Vyska vyska = new Vyska(vyskaI);
-                            Bod bod = new Bod(i*bodSize, j*bodSize,vyska);
-                            mapa[i][j]=bod;
-                            root.getChildren().add(bod);
-
-                        }else if (i==0){
-
-
-                            dole = mapa[i+1][j].getVyska().getvalueOfVyska();
-                            doleVlevo = mapa[i+1][j-1].getVyska().getvalueOfVyska();
-                            vlevo = mapa[i][j-1].getVyska().getvalueOfVyska();
-                            prumer = (dole + doleVlevo + vlevo)/3;
-
-                            if (j!= mapa.length-1 && j!= mapa.length){
-
-                                //vpravo = mapa[i][j+1].getVyska().getvalueOfVyska();
-                                doleVpravo = mapa[i+1][j+1].getVyska().getvalueOfVyska();
-                                prumer = (dole + doleVlevo + vlevo /*+ vpravo*/ + doleVpravo)/5;
-
-                            }
-
-                            max = prumer + schodek;
-                            min = prumer - schodek;
-
-                            if (min<MIN){
-                                min = MIN;
-                                count++;
-                            }else if(max>MAX){
-                                max = MAX;
-                                count++;
-                            }
-
-                            vyskaI = vytvorVysku(max,min);
-                            Vyska vyska = new Vyska(vyskaI);
-                            Bod bod = new Bod(i*bodSize,j*bodSize,vyska);
-                            mapa[i][j]=bod;
-                            root.getChildren().add(bod);
-
-                            System.out.println("body prvniho radku: " + bod.getVyska().getvalueOfVyska() + " min: " + min + " max: "+ max + " generovana vyska: " + vyskaI);
-
-                        }else if (j==0){
-
-                            nahore = mapa[i-1][j].getVyska().getvalueOfVyska();
-                            nahoreVpravo = mapa[i-1][j+1].getVyska().getvalueOfVyska();
-                            vpravo = mapa[i][j+1].getVyska().getvalueOfVyska();
-
-
-                            prumer = (nahore + nahoreVpravo + vpravo)/3;
-                            max = prumer + schodek;
-                            min = prumer - schodek;
-
-                            if (i!=mapa.length && i!= mapa.length-1){
-                                dole = mapa[i+1][j].getVyska().getvalueOfVyska();
-                                doleVpravo = mapa[i+1][j+1].getVyska().getvalueOfVyska();
-                                prumer = (nahore + nahoreVpravo + vpravo + dole + doleVpravo)/5;
-                                max = prumer + schodek;
-                                min = prumer - schodek;
-                            }
-
-                            if (min<MIN){
-                                min = MIN;
-                                count++;
-                            }else if(max>MAX){
-                                max = MAX;
-                                count++;
-                            }
-
-                            vyskaI = vytvorVysku(max,min);
-
-                            Vyska vyska = new Vyska(vyskaI);
-
-                            Bod bod = new Bod(i*bodSize,j*bodSize, vyska);
-                            mapa[i][j] = bod;
-                            root.getChildren().addAll(bod);
-                            System.out.println("-------------------------------------------------------------"+i);
-                            System.out.println("body prvniho sloupce: " + bod.getVyska().getvalueOfVyska() + " min: " + min + " max: "+ max + " generovana vyska: " + vyskaI);
-
-                        }else if (i!= mapa.length&& i!=mapa.length-1)  {
-
-                            nahoreVlevo = mapa[i-1][j-1].getVyska().getvalueOfVyska();
-                            nahore = mapa[i-1][j].getVyska().getvalueOfVyska();
-                            vlevo = mapa[i][j-1].getVyska().getvalueOfVyska();
-                            dole = mapa[i+1][j].getVyska().getvalueOfVyska();
-                            doleVlevo = mapa[i+1][j-1].getVyska().getvalueOfVyska();
-
-
-                            prumer = (nahore + nahoreVlevo + dole + doleVlevo + vlevo)/5;
-                            max = prumer + schodek;
-                            min = prumer - schodek;
-
-                            if (min<MIN){
-                                min = MIN;
-                                count++;
-                            }else if(max>MAX){
-                                max = MAX;
-                                count++;
-                            }
-
-                            if (j!= mapa.length-1 &&j!= mapa.length){
-
-                                doleVpravo = mapa[i+1][j+1].getVyska().getvalueOfVyska();
-                                vpravo = mapa[i][j+1].getVyska().getvalueOfVyska();
-                                nahoreVpravo = mapa[i-1][j+1].getVyska().getvalueOfVyska();
-
-                                prumer = (nahore + nahoreVlevo + dole + doleVlevo + vlevo + doleVpravo + nahoreVpravo + vpravo)/8;
-                                max = prumer + schodek;
-                                min = prumer - schodek;
-
-                                if (min<MIN){
-                                    min = 0;
-                                    count++;
-                                }else if(max>MAX){
-                                    max = 1000;
-                                    count++;
-                                }
-
-                            }
-
-                            vyskaI = vytvorVysku(max,min);
-                            Vyska vyska = new Vyska(vyskaI);
-                            Bod bod = new Bod(i*bodSize, j*bodSize, vyska);
-
-                            mapa[i][j]=bod;
-                            root.getChildren().addAll(bod);
-                            System.out.println("ostatvni body: " + bod.getVyska().getvalueOfVyska() + " min: " + min + " max: "+ max + " generovana vyska: " + vyskaI);
-                        }
-                    }
-                }
-            }
-
-        }
     }
 
     public Bod[][] generujMapuHorizont(){

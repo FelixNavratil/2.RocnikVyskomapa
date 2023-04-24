@@ -16,7 +16,7 @@ public class HBod extends Line {
         setEndX(x*bodSize);
         setStartY(velikostHorizontuY);
         setEndY(velikostHorizontuY - vyska.getvalueOfVyska()*dilek);
-        setStroke(vyska.getBarvaGPT());
+        setStroke(Color.BLACK);
 
     }
 

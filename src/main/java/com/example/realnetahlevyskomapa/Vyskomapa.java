@@ -32,7 +32,7 @@ public class Vyskomapa extends Application {
 
     public static int size = 800;
     public static int velikostMapy = 800;
-    public static int bodSize = 2;
+    public static int bodSize = 8;
     public static int schodek = 500;
     public static int MAX = 8800;
     public static int MIN = 0;
@@ -530,8 +530,9 @@ public class Vyskomapa extends Application {
     }
 
     public int zmenaMAX(boolean jePlus){
+
         if (jePlus){
-            if (MAX + 50<= MAX){
+            if (MAX + 50<= 8900){
                 MAX+=100;
             }
         }else{

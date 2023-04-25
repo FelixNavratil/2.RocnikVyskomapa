@@ -17,6 +17,8 @@ public class Bod extends Rectangle {
     public Bod(int coordX, int coordY, int vyska) {
         Vyska vyska2 = new Vyska(vyska);
         vyska1 = vyska2;
+        this.coordX = coordX;
+        this.coordY = coordY;
         this.vyska = vyska;
         setWidth(bodSize);
         setHeight(bodSize);
@@ -32,8 +34,14 @@ public class Bod extends Rectangle {
         setLayoutY(coordY);
     }
 
+
+
+
     public Bod(int coordX, int coordY, Vyska vyska1) {
         this.vyska1 = vyska1;
+        this.coordX = coordX;
+        this.coordY = coordY;
+        this.vyska = vyska1.getvalueOfVyska();
         setWidth(bodSize);
         setHeight(bodSize);
         setFill(vyska1.getBarva2());
@@ -41,8 +49,10 @@ public class Bod extends Rectangle {
         setLayoutY(coordY);
 
     }
+
     public Vyska setVyska(int vyska){
         vyska1.setVyska(vyska);
+        this.vyska = vyska;
         return vyska1;
     }
 
@@ -74,8 +84,8 @@ public class Bod extends Rectangle {
         return "Bod{" +
                 "vyska1=" + vyska1 +
                 ", vyska=" + vyska +
-                ", coordX=" + coordX +
-                ", coordY=" + coordY +
+                ", coordX=" + coordX/bodSize +
+                ", coordY=" + coordY/bodSize +
                 '}';
     }
 }

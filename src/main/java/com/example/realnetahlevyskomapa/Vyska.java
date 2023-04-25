@@ -3,7 +3,7 @@ package com.example.realnetahlevyskomapa;
 
 import javafx.scene.paint.Color;
 
-public class Vyska {
+public class Vyska{
 
     private  int vyska;
     public Vyska(){
